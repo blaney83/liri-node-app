@@ -1,34 +1,48 @@
 
+//requires
 require("dotenv").config();
+const keys = require("./keys")
+const fs = require("fs")
+const request = require("request")
+const moment = require("moment")
+const Spotify = require("node-spotify-api")
 
+//node variables
 const processArray = process.argv
 const kindOfRequest = processArray[2]
-const keys = require("./keys")
-const request = require("request")
 
+//Bands in Town definitions
+const bandName = processArray.splice(3).join(" ")
+const bandURL = "https://rest.bandsintown.com/artists/" + bandName + "/events?app_id=" + keys.bandsInTown.key + "&upcoming_event_counts=3"
 //Spotify definitions
-const Spotify = require("node-spotify-api")
 const spotify = new Spotify(keys.spotify);
 const songTitle = processArray.splice(3).join(" ")
 
-//movie search definitions
+//OMDB search definitions
 const movieTitle = processArray.splice(3).join("+")
 const movieQueryURL = "http://www.omdbapi.com/?t=" + movieTitle + "&y=&plot=short&apikey=" + keys.omdb.key;
 
-console.log(movieQueryURL)
-console.log(kindOfRequest)
-show(songTitle)
-
-switch(kindOfRequest) {
+switch (kindOfRequest) {
     case "concert-this":
-        //insert
+        request(bandURL, (error, response, body) => {
+            if (!error && response.statusCode === 200) {
+                // show("Event 1: " + )
+                show("Venue: " + JSON.parse(body)[0].venue.name);
+                show("Location: " + JSON.parse(body)[0].venue.city + ", " + JSON.parse(body)[0].venue.region);
+                show("Date: " + moment(JSON.parse(body)[0].datetime).format("dddd, MMMM Do YYYY, h:mm a"));
+                show("Tickets: " + JSON.parse(body)[0].offers[0].url);
+            } else {
+                show("An error occured when accessing your artist or band information. Please try again.")
+            }
+        })
         break;
     case "spotify-this-song":
-        spotify.search({type: 'track', query: songTitle, limit: 1}, (error, data) => {
+        spotify.search({ type: 'track', query: songTitle, limit: 1 }, (error, data) => {
             if (!error) {
-                // console.log(data.tracks.items)
-                show("Artist: " + data.tracks.items[0].album)
-
+                show("Artist: " + data.tracks.items[0].artists[0].name);
+                show("Song: " + data.tracks.items[0].name);
+                show("Album: " + data.tracks.items[0].album.name);
+                show("Link: " + data.tracks.items[0].preview_url);
             } else {
                 show("An error occured when accessing your song information. Please try again." + error)
             }
@@ -52,13 +66,13 @@ switch(kindOfRequest) {
         });
         break;
     case "do-what-it-says":
-        //insert
+            //input
         break;
     default:
         show("this feature is not supported. Please try one of the following: 'concert-this' bandName, 'spotify-this-song' songName, 'movie-this' movieName, 'do-what-it-says' random")
 }
 
-function show(x){
+function show(x) {
     console.log(x)
 }
 
