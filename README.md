@@ -26,11 +26,11 @@ This will initiate the installation of the npm packages associated with this pro
 
 1. CONCERT-THIS
 
-    ```javascript
+    ```
     node liri.js concert-this <artist/band name here>
     ```
 
-   * This will search the Bands in Town Artist Events API (`"https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp"`) for an artist and render the following information about each event to the terminal:
+* This will search the Bands in Town Artist Events API (`"https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp"`) for an artist and render the following information about each event to the terminal:
 
      * Name of the venue
 
